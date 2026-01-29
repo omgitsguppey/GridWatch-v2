@@ -37,16 +37,13 @@ const App: React.FC = () => {
         }
     }, []);
 
-    const handleLogin = (credential: string) => {
-        console.warn("Legacy handleLogin called.");
-    };
-
     const handleAdminLogin = (adminUser: UserInfo) => {
         setUser(adminUser);
+        setView(AppView.MAP);
     };
 
     if (!user) {
-        return <LandingPage onLogin={handleLogin} onAdminLogin={handleAdminLogin} />;
+        return <LandingPage onAdminLogin={handleAdminLogin} />;
     }
 
     return (
