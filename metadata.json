@@ -1,0 +1,7 @@
+{
+  "name": "GridWatch Nashville",
+  "description": "A lean, mobile-first emergency power tracker and warming center finder for Nashville 2026. Features real-time status reporting and AI-powered grounding for shelter locations.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
