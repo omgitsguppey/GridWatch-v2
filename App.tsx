@@ -2,81 +2,121 @@ import React, { useState, useEffect } from 'react';
 import { StatusFeed } from './components/StatusFeed';
 import { WarmingCenters } from './components/WarmingCenters';
 import { LandingPage } from './components/LandingPage';
+import { MediaTools } from './components/MediaTools';
+import { Assistant } from './components/Assistant';
 import { AppView } from './types';
-import { Home, Map as MapIcon, Zap } from 'lucide-react';
+import { Home, Map as MapIcon, Zap, LogOut, Camera, MessageCircle } from 'lucide-react';
+
+interface UserInfo {
+  name: string;
+  email: string;
+  picture?: string;
+}
 
 const App: React.FC = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [view, setView] = useState<AppView>(AppView.FEED);
-    const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
+    const [user, setUser] = useState<UserInfo | null>(null);
+    const [view, setView] = useState<AppView>(AppView.MAP); 
+    const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
 
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-                (err) => console.error("Location denied", err)
+                (position) => {
+                    setUserLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    console.error("Error getting location", error);
+                    setUserLocation({ lat: 36.1627, lng: -86.7816 });
+                }
             );
+        } else {
+             setUserLocation({ lat: 36.1627, lng: -86.7816 });
         }
     }, []);
 
-    const handleLogin = () => {
-        // In a real app, this would handle the Google Auth provider
-        setIsAuthenticated(true);
+    const handleLogin = (credential: string) => {
+        console.warn("Legacy handleLogin called.");
     };
 
-    if (!isAuthenticated) {
-        return <LandingPage onLogin={handleLogin} />;
+    const handleAdminLogin = (adminUser: UserInfo) => {
+        setUser(adminUser);
+    };
+
+    if (!user) {
+        return <LandingPage onLogin={handleLogin} onAdminLogin={handleAdminLogin} />;
     }
 
-    const renderView = () => {
-        switch (view) {
-            case AppView.FEED: return <StatusFeed userLocation={location} />;
-            case AppView.MAP: return <WarmingCenters userLocation={location} />;
-            default: return <StatusFeed userLocation={location} />;
-        }
-    };
-
     return (
-        <div className="min-h-screen bg-background text-text font-sans selection:bg-primary/30">
-            {/* Header (Only on Feed) */}
-            {view === AppView.FEED && (
-                <div className="pt-6 px-4 pb-2 bg-gradient-to-b from-black to-transparent sticky top-0 z-10 backdrop-blur-xl">
-                    <header className="flex justify-between items-center mb-6">
-                        <div>
-                            <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                                <Zap className="text-primary fill-primary" size={24} />
-                                GridWatch
-                            </h1>
-                        </div>
-                        <div className="w-2 h-2 bg-success rounded-full animate-pulse shadow-[0_0_10px_#30D158]"></div>
-                    </header>
+        <div className="flex flex-col h-screen bg-black text-white overflow-hidden w-full relative">
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 bg-surface border-b border-white/5 z-20">
+                <div className="flex items-center gap-3">
+                    <div className="bg-primary/20 p-2 rounded-lg">
+                        <Zap size={20} className="text-primary fill-primary" />
+                    </div>
+                    <div>
+                        <h1 className="font-bold text-lg leading-none">GridWatch</h1>
+                        <p className="text-[10px] text-subtext font-medium tracking-wider uppercase">Live Updates</p>
+                    </div>
                 </div>
-            )}
+                <div className="flex items-center gap-3">
+                    {user.picture ? (
+                         <img src={user.picture} alt="Profile" className="w-8 h-8 rounded-full border border-white/10" />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                            {user.name.charAt(0)}
+                        </div>
+                    )}
+                    <button onClick={() => setUser(null)} className="text-subtext hover:text-danger transition-colors">
+                        <LogOut size={18} />
+                    </button>
+                </div>
+            </div>
 
-            {/* Main Content Area */}
-            <main className="h-full">
-                {renderView()}
-            </main>
+            {/* Main Content */}
+            <div className="flex-1 overflow-y-auto no-scrollbar relative bg-black">
+                {view === AppView.FEED && <StatusFeed userLocation={userLocation} />}
+                {view === AppView.MAP && <WarmingCenters userLocation={userLocation} />}
+                {view === AppView.MEDIA && <MediaTools />}
+                {(view as any) === 'ASSISTANT' && <Assistant />}
+            </div>
 
-            {/* Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-lg border-t border-white/5 pb-safe pt-2 px-6 z-50">
-                <div className="flex justify-around items-center max-w-md mx-auto h-16">
+            {/* Navigation */}
+            <div className="bg-surface/90 backdrop-blur-md border-t border-white/5 p-4 z-20 absolute bottom-0 w-full">
+                <div className="flex justify-around items-center px-2 max-w-2xl mx-auto">
                     <button 
                         onClick={() => setView(AppView.FEED)}
-                        className={`flex flex-col items-center gap-1 w-20 transition-colors ${view === AppView.FEED ? 'text-primary' : 'text-subtext'}`}
+                        className={`flex flex-col items-center gap-1 transition-all ${view === AppView.FEED ? 'text-primary scale-105' : 'text-subtext hover:text-white'}`}
                     >
-                        <Home size={24} strokeWidth={view === AppView.FEED ? 2.5 : 2} />
-                        <span className="text-[10px] font-medium">Status</span>
+                        <Home size={24} fill={view === AppView.FEED ? "currentColor" : "none"} />
+                        <span className="text-[10px] font-bold">Updates</span>
                     </button>
                     <button 
                         onClick={() => setView(AppView.MAP)}
-                        className={`flex flex-col items-center gap-1 w-20 transition-colors ${view === AppView.MAP ? 'text-primary' : 'text-subtext'}`}
+                        className={`flex flex-col items-center gap-1 transition-all ${view === AppView.MAP ? 'text-primary scale-105' : 'text-subtext hover:text-white'}`}
                     >
-                        <MapIcon size={24} strokeWidth={view === AppView.MAP ? 2.5 : 2} />
-                        <span className="text-[10px] font-medium">Map</span>
+                        <MapIcon size={24} fill={view === AppView.MAP ? "currentColor" : "none"} />
+                        <span className="text-[10px] font-bold">Map</span>
+                    </button>
+                     <button 
+                        onClick={() => setView(AppView.MEDIA)}
+                        className={`flex flex-col items-center gap-1 transition-all ${view === AppView.MEDIA ? 'text-primary scale-105' : 'text-subtext hover:text-white'}`}
+                    >
+                        <Camera size={24} fill={view === AppView.MEDIA ? "currentColor" : "none"} />
+                        <span className="text-[10px] font-bold">Media</span>
+                    </button>
+                     <button 
+                        onClick={() => setView('ASSISTANT' as any)}
+                        className={`flex flex-col items-center gap-1 transition-all ${(view as any) === 'ASSISTANT' ? 'text-primary scale-105' : 'text-subtext hover:text-white'}`}
+                    >
+                        <MessageCircle size={24} fill={(view as any) === 'ASSISTANT' ? "currentColor" : "none"} />
+                        <span className="text-[10px] font-bold">Assistant</span>
                     </button>
                 </div>
-            </nav>
+            </div>
         </div>
     );
 };

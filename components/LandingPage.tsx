@@ -1,46 +1,172 @@
-import React from 'react';
-import { Zap } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Zap, ArrowRight, Loader2, Mail, Lock, AlertCircle, WifiOff, CheckCircle2 } from 'lucide-react';
 
 interface LandingPageProps {
-  onLogin: () => void;
+  onLogin: (credential: string) => void;
+  onAdminLogin: (user: { name: string; email: string; picture?: string }) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
+const BACKEND_URL = 'https://gridwatch-323159573006.us-west1.run.app';
+const AUTH_ENDPOINT = `${BACKEND_URL}/api/auth/login`;
+
+export const LandingPage: React.FC<LandingPageProps> = ({ onAdminLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isOffline, setIsOffline] = useState(false);
+  
+  const handleLogin = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setIsOffline(false);
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+      const response = await fetch(AUTH_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user) {
+          onAdminLogin(data.user);
+          return;
+        }
+      }
+
+      if (response.status === 401) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.message || "Invalid login details.");
+        setLoading(false);
+        return;
+      }
+
+      throw new Error("Connection failed.");
+    } catch (err: any) {
+      setIsOffline(true);
+      setError("Server is busy. Continuing as a guest...");
+      
+      setTimeout(() => {
+        onAdminLogin({
+          name: email.split('@')[0] || 'User',
+          email: email,
+        });
+      }, 1500);
+    }
+  }, [email, password, onAdminLogin]);
+
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-[#000000] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-[-25%] left-[-25%] w-[800px] h-[800px] bg-primary/10 blur-[180px] rounded-full pointer-events-none animate-pulse" />
+      <div className="absolute bottom-[-25%] right-[-25%] w-[800px] h-[800px] bg-primary/5 blur-[180px] rounded-full pointer-events-none" />
 
-      <div className="z-10 flex flex-col items-center text-center space-y-8 max-w-md w-full">
-        <div className="bg-surface p-6 rounded-3xl border border-white/5 shadow-2xl shadow-primary/10 mb-4">
-            <Zap className="w-16 h-16 text-primary fill-primary" />
+      <div className="z-10 flex flex-col items-center text-center space-y-12 max-w-md w-full animate-in fade-in zoom-in-95 duration-1000">
+        <div className="bg-[#111111]/50 p-10 rounded-[3rem] border border-white/5 shadow-2xl relative group overflow-hidden">
+          <Zap className="w-20 h-20 text-primary fill-primary relative z-10 filter drop-shadow-[0_0_15px_rgba(10,132,255,0.4)]" />
+          <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         </div>
         
-        <div className="space-y-2">
-            <h1 className="text-4xl font-black text-white tracking-tighter">
+        <div className="space-y-4">
+          <h1 className="text-6xl font-black text-white tracking-tightest">
             GridWatch
-            </h1>
-            <p className="text-subtext text-lg font-medium leading-relaxed">
-            Real-time power tracking and emergency resources for your community.
-            </p>
+          </h1>
+          <p className="text-subtext text-xl font-medium px-8 leading-snug">
+            Real-time status updates and local help in your community.
+          </p>
         </div>
 
-        <button 
-            onClick={onLogin}
-            className="w-full bg-white text-black font-bold text-lg py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-200 transition-all active:scale-95"
-        >
-            <svg className="w-6 h-6" viewBox="0 0 24 24">
-                <path fill="#000" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#000" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#000" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                <path fill="#000" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            Sign in with Google
-        </button>
+        <div className="w-full bg-[#111111]/40 backdrop-blur-2xl p-10 rounded-[3.5rem] border border-white/10 shadow-3xl relative overflow-hidden">
+            <form onSubmit={handleLogin} className="space-y-6 pt-2">
+                {error && (
+                    <div className={`p-5 border rounded-2xl text-[13px] font-bold text-center animate-in slide-in-from-top-2 flex items-center justify-center gap-2 ${isOffline ? 'bg-warning/5 border-warning/20 text-warning' : 'bg-danger/5 border-danger/20 text-danger'}`}>
+                        {isOffline ? <WifiOff size={16} /> : <AlertCircle size={16} />}
+                        {error}
+                    </div>
+                )}
+                
+                <div className="space-y-3 text-left group">
+                    <label className="text-[11px] font-black text-subtext/40 ml-5 uppercase tracking-[0.2em] group-focus-within:text-primary transition-colors">Email Address</label>
+                    <div className="relative">
+                        <Mail size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-subtext/40 group-focus-within:text-white transition-colors" />
+                        <input 
+                            type="email" 
+                            disabled={loading}
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            className="w-full bg-[#000000]/60 border border-white/5 rounded-2xl pl-14 pr-6 py-5 text-white placeholder-white/5 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all disabled:opacity-50 font-medium"
+                            placeholder="name@example.com"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-3 text-left group">
+                    <label className="text-[11px] font-black text-subtext/40 ml-5 uppercase tracking-[0.2em] group-focus-within:text-primary transition-colors">Password</label>
+                    <div className="relative">
+                        <Lock size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-subtext/40 group-focus-within:text-white transition-colors" />
+                        <input 
+                            type="password" 
+                            disabled={loading}
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            className="w-full bg-[#000000]/60 border border-white/5 rounded-2xl pl-14 pr-6 py-5 text-white placeholder-white/5 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all disabled:opacity-50 font-medium"
+                            placeholder="••••••••"
+                            required
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                  <button 
+                      type="submit" 
+                      disabled={loading}
+                      className="w-full bg-white text-black font-black py-5 rounded-2xl hover:bg-white active:scale-[0.97] transition-all shadow-2xl shadow-white/5 mt-2 flex items-center justify-center gap-3 disabled:opacity-30 disabled:pointer-events-none text-[13px] uppercase tracking-[0.2em]"
+                  >
+                      {loading ? (
+                          <Loader2 size={22} className="animate-spin" />
+                      ) : (
+                          <>
+                              Continue <ArrowRight size={20} />
+                          </>
+                      )}
+                  </button>
+
+                  {isOffline && (
+                    <div className="flex items-center justify-center gap-2 text-warning animate-pulse">
+                        <CheckCircle2 size={14} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Entering Offline Mode</span>
+                    </div>
+                  )}
+
+                  <div className="text-center pt-2">
+                    <button 
+                      type="button"
+                      className="text-[12px] font-bold text-subtext hover:text-white transition-colors tracking-wide"
+                      onClick={() => alert("Registration is currently invited only.")}
+                    >
+                      Need an account? <span className="text-primary">Join now</span>
+                    </button>
+                  </div>
+                </div>
+            </form>
+        </div>
         
-        <p className="text-xs text-white/20 mt-8">
-            By continuing, you agree to our Terms & Privacy Policy.
+        <p className="text-[10px] text-center text-white/5 font-mono tracking-tighter truncate opacity-20 select-none">
+            GRIDWATCH_APP_V3
         </p>
       </div>
     </div>

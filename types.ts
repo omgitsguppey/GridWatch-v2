@@ -17,6 +17,8 @@ export interface WarmingCenter {
   status: 'OPEN' | 'FULL' | 'CLOSED';
   capacity?: string;
   sourceUrl?: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface GroundingChunk {
@@ -38,4 +40,5 @@ export interface GroundingChunk {
 export enum AppView {
   FEED = 'FEED',
   MAP = 'MAP',
+  MEDIA = 'MEDIA',
 }
