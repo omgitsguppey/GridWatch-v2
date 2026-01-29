@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { UserReport } from '../types';
-import { AlertTriangle, CheckCircle, ThermometerSnowflake, MapPin } from 'lucide-react';
-
-const MOCK_REPORTS: UserReport[] = [
-    { id: '1', type: 'OUTAGE', timestamp: Date.now() - 1000 * 60 * 5, location: { lat: 0, lng: 0, address: '12th Ave S' }, verified: true, description: "Whole block is dark." },
-    { id: '2', type: 'RESTORED', timestamp: Date.now() - 1000 * 60 * 15, location: { lat: 0, lng: 0, address: 'Belmont Blvd' }, verified: true, description: "Power just came back on!" },
-    { id: '3', type: 'WARMING_NEEDED', timestamp: Date.now() - 1000 * 60 * 45, location: { lat: 0, lng: 0, address: 'Edgehill' }, verified: false, description: "Elderly couple needs heat." },
-];
+import { AlertTriangle, CheckCircle, ThermometerSnowflake, MapPin, Activity } from 'lucide-react';
 
 interface StatusFeedProps {
     userLocation: { lat: number, lng: number } | null;
 }
 
 export const StatusFeed: React.FC<StatusFeedProps> = ({ userLocation }) => {
-    const [reports, setReports] = useState<UserReport[]>(MOCK_REPORTS);
+    const [reports, setReports] = useState<UserReport[]>([]);
 
-    // Simulate real-time updates
+    // Simulate real-time updates (placeholder)
     useEffect(() => {
         const interval = setInterval(() => {
             // In a real app, fetch from backend
@@ -34,20 +28,14 @@ export const StatusFeed: React.FC<StatusFeedProps> = ({ userLocation }) => {
 
     return (
         <div className="flex flex-col gap-4 pb-24 px-4 pt-4">
-            <h2 className="text-xl font-bold text-white mb-2">Neighborhood Pulse</h2>
+            <h2 className="text-xl font-bold text-white mb-2">Activity</h2>
             
-            {/* Discrepancy Alert - Logic: If many user reports conflict with official status */}
-            <div className="bg-surface border border-danger/30 rounded-xl p-4 shadow-lg shadow-danger/10">
-                <div className="flex items-start gap-3">
-                    <AlertTriangle className="text-danger w-6 h-6 shrink-0" />
-                    <div>
-                        <h3 className="font-semibold text-danger">Status Conflict Detected</h3>
-                        <p className="text-sm text-subtext mt-1">
-                            NES Map shows "Restored" on 12th Ave S, but 14 verified user reports indicate power is still out. We are flagging this to authorities.
-                        </p>
-                    </div>
+            {reports.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 opacity-40">
+                    <Activity size={48} className="text-subtext mb-4" />
+                    <p className="text-subtext text-center font-medium">No recent activity reported.</p>
                 </div>
-            </div>
+            )}
 
             {reports.map((report) => (
                 <div key={report.id} className="bg-surface rounded-2xl p-4 flex gap-4 border border-white/5">

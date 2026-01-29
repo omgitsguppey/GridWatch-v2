@@ -8,12 +8,12 @@ const getAiInstance = async () => {
 };
 
 
-export const findWarmingCenters = async (): Promise<{ centers: WarmingCenter[]; chunks: GroundingChunk[] }> => {
+export const findWarmingCenters = async (lat: number, lng: number): Promise<{ centers: WarmingCenter[]; chunks: GroundingChunk[] }> => {
   const ai = await getAiInstance();
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: "Find the current active list of warming centers in Nashville, TN for the 2026 emergency season. Include fire stations, police stations, and community centers. Return a list with names, addresses, and current status if available.",
+    contents: `Find the current active list of warming centers near latitude ${lat}, longitude ${lng}. Include fire stations, police stations, and community centers. Return a list with names, addresses, and current status if available.`,
     config: {
       tools: [{ googleSearch: {} }],
       responseMimeType: "application/json",

@@ -14,11 +14,12 @@ export const WarmingCenters: React.FC<WarmingCentersProps> = ({ userLocation }) 
     const [groundingLinks, setGroundingLinks] = useState<GroundingChunk[]>([]);
 
     const fetchData = async () => {
+        if (!userLocation) return;
         setLoading(true);
         try {
             const [centerData, outageData] = await Promise.all([
-                findWarmingCenters(),
-                userLocation ? findOutageClusters(userLocation.lat, userLocation.lng) : Promise.resolve({ text: "Location needed for outage data", chunks: [] })
+                findWarmingCenters(userLocation.lat, userLocation.lng),
+                findOutageClusters(userLocation.lat, userLocation.lng)
             ]);
 
             setCenters(centerData.centers);
@@ -40,7 +41,7 @@ export const WarmingCenters: React.FC<WarmingCentersProps> = ({ userLocation }) 
         <div className="pb-24 px-4 pt-4">
              <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-white">Emergency Map Data</h2>
-                <button onClick={fetchData} className="p-2 bg-surface rounded-full text-primary hover:bg-white/10 transition-colors">
+                <button onClick={fetchData} disabled={!userLocation} className="p-2 bg-surface rounded-full text-primary hover:bg-white/10 transition-colors disabled:opacity-50">
                     <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
                 </button>
             </div>
@@ -52,16 +53,20 @@ export const WarmingCenters: React.FC<WarmingCentersProps> = ({ userLocation }) 
                     Local Grid Intelligence
                 </h3>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                    {outageInfo || "Analyzing outage clusters..."}
+                    {!userLocation ? "Waiting for location..." : outageInfo || "Analyzing outage clusters..."}
                 </p>
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-3">Nearest Warming Centers (2026)</h3>
+            <h3 className="text-lg font-bold text-white mb-3">Nearest Warming Centers</h3>
             
             {loading && centers.length === 0 && (
                  <div className="flex flex-col gap-4">
                     {[1,2,3].map(i => <div key={i} className="h-24 bg-surface rounded-2xl animate-pulse"></div>)}
                  </div>
+            )}
+
+            {!loading && centers.length === 0 && userLocation && (
+                <p className="text-subtext text-sm">No specific warming centers found nearby.</p>
             )}
 
             <div className="flex flex-col gap-4">
