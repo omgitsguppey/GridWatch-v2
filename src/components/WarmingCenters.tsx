@@ -5,9 +5,12 @@ import { MapPin, Navigation, RefreshCw, Zap, Shield, Flame, X, Locate } from 'lu
 
 interface MapViewProps {
     userLocation: { lat: number, lng: number } | null;
+    onRequestLocation: () => void;
 }
 
-export const WarmingCenters: React.FC<MapViewProps> = ({ userLocation }) => {
+const DEFAULT_MAP_CENTER = { lat: 36.1627, lng: -86.7816 };
+
+export const WarmingCenters: React.FC<MapViewProps> = ({ userLocation, onRequestLocation }) => {
     const [centers, setCenters] = useState<WarmingCenter[]>([]);
     const [outageInfo, setOutageInfo] = useState<string>('');
     const [loading, setLoading] = useState(false);
@@ -16,10 +19,10 @@ export const WarmingCenters: React.FC<MapViewProps> = ({ userLocation }) => {
     const [selectedCenter, setSelectedCenter] = useState<WarmingCenter | null>(null);
     const [zoom, setZoom] = useState(1);
     const mapRef = useRef<HTMLDivElement>(null);
-    const [mapCenter, setMapCenter] = useState<{lat: number, lng: number} | null>(null);
+    const [mapCenter, setMapCenter] = useState<{lat: number, lng: number} | null>(DEFAULT_MAP_CENTER);
 
     useEffect(() => {
-        if (userLocation && !mapCenter) {
+        if (userLocation) {
             setMapCenter(userLocation);
         }
     }, [userLocation]);
@@ -118,7 +121,13 @@ export const WarmingCenters: React.FC<MapViewProps> = ({ userLocation }) => {
                         <RefreshCw size={24} className={loading ? "animate-spin" : ""} />
                     </button>
                     <button 
-                        onClick={() => userLocation && setMapCenter(userLocation)}
+                        onClick={() => {
+                            if (userLocation) {
+                                setMapCenter(userLocation);
+                                return;
+                            }
+                            onRequestLocation();
+                        }}
                         className="bg-surface/80 backdrop-blur-md p-3 rounded-full border border-white/10 text-primary hover:bg-surface active:scale-95 transition-all shadow-xl"
                     >
                         <Locate size={24} />

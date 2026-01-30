@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StatusFeed } from './components/StatusFeed';
 import { WarmingCenters } from './components/WarmingCenters';
 import { LandingPage } from './components/LandingPage';
@@ -18,24 +18,24 @@ const App: React.FC = () => {
     const [view, setView] = useState<AppView>(AppView.MAP); 
     const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
 
-    useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setUserLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    });
-                },
-                (error) => {
-                    console.error("Error getting location", error);
-                    setUserLocation({ lat: 36.1627, lng: -86.7816 });
-                }
-            );
-        } else {
-             setUserLocation({ lat: 36.1627, lng: -86.7816 });
+    const handleRequestLocation = () => {
+        if (!navigator.geolocation) {
+            console.error("Geolocation is not supported in this browser.");
+            return;
         }
-    }, []);
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setUserLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                });
+            },
+            (error) => {
+                console.error("Error getting location", error);
+            }
+        );
+    };
 
     const handleLogin = (credential: string) => {
         console.warn("Legacy handleLogin called.");
@@ -79,7 +79,12 @@ const App: React.FC = () => {
             {/* Main Content */}
             <div className="flex-1 overflow-y-auto no-scrollbar relative bg-black">
                 {view === AppView.FEED && <StatusFeed userLocation={userLocation} />}
-                {view === AppView.MAP && <WarmingCenters userLocation={userLocation} />}
+                {view === AppView.MAP && (
+                    <WarmingCenters
+                        userLocation={userLocation}
+                        onRequestLocation={handleRequestLocation}
+                    />
+                )}
                 {view === AppView.MEDIA && <MediaTools />}
                 {(view as any) === 'ASSISTANT' && <Assistant />}
             </div>
