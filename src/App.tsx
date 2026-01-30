@@ -81,7 +81,7 @@ const App: React.FC = () => {
                 {view === AppView.FEED && <StatusFeed userLocation={userLocation} />}
                 {view === AppView.MAP && <WarmingCenters userLocation={userLocation} />}
                 {view === AppView.MEDIA && <MediaTools />}
-                {(view as any) === 'ASSISTANT' && <Assistant />}
+                {view === AppView.ASSISTANT && <Assistant />}
             </div>
 
             {/* Navigation */}
@@ -109,10 +109,10 @@ const App: React.FC = () => {
                         <span className="text-[10px] font-bold">Media</span>
                     </button>
                      <button 
-                        onClick={() => setView('ASSISTANT' as any)}
-                        className={`flex flex-col items-center gap-1 transition-all ${(view as any) === 'ASSISTANT' ? 'text-primary scale-105' : 'text-subtext hover:text-white'}`}
+                        onClick={() => setView(AppView.ASSISTANT)}
+                        className={`flex flex-col items-center gap-1 transition-all ${view === AppView.ASSISTANT ? 'text-primary scale-105' : 'text-subtext hover:text-white'}`}
                     >
-                        <MessageCircle size={24} fill={(view as any) === 'ASSISTANT' ? "currentColor" : "none"} />
+                        <MessageCircle size={24} fill={view === AppView.ASSISTANT ? "currentColor" : "none"} />
                         <span className="text-[10px] font-bold">Assistant</span>
                     </button>
                 </div>

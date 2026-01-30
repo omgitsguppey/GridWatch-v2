@@ -41,4 +41,5 @@ export enum AppView {
   FEED = 'FEED',
   MAP = 'MAP',
   MEDIA = 'MEDIA',
+  ASSISTANT = 'ASSISTANT',
 }
