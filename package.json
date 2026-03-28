@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@google/genai": "^1.38.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "firebase": "^12.8.0",
+    "google-auth-library": "^10.6.2",
     "lucide-react": "^0.563.0"
   },
   "devDependencies": {

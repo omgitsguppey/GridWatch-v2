@@ -3,7 +3,13 @@ const { OAuth2Client } = require('google-auth-library');
 const cors = require('cors');
 
 const app = express();
-app.use(cors()); // Critical for cross-origin requests from the web app
+
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions)); // Critical for cross-origin requests from the web app
+
 app.use(express.json());
 
 // Match the Client ID used in the frontend
