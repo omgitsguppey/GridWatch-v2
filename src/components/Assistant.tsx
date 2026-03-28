@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { chatWithAssistant, connectToLiveApi } from '../services/geminiService';
-import { Mic, Send, MessageSquare, StopCircle, Volume2 } from 'lucide-react';
+import { Mic, Send, MessageSquare, StopCircle } from 'lucide-react';
 
 export const Assistant: React.FC = () => {
     const [messages, setMessages] = useState<{role: string, parts: {text: string}[]}[]>([]);
