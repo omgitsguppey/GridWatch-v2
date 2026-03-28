@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite --force",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
   },
   "dependencies": {
     "@google/genai": "^1.38.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "firebase": "^12.8.0",
+    "google-auth-library": "^10.6.2",
     "lucide-react": "^0.563.0"
   },
   "devDependencies": {
@@ -19,9 +23,11 @@
     "@vitejs/plugin-react": "^4.3.1",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.23",
+    "jest": "^30.3.0",
     "postcss": "^8.5.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "supertest": "^7.2.2",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
