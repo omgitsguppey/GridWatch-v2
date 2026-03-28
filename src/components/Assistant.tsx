@@ -93,10 +93,10 @@ export const Assistant: React.FC = () => {
                 
                 // Base64 encode
                 let binary = '';
-                const len = int16.byteLength;
                 const bytes = new Uint8Array(int16.buffer);
-                for (let i = 0; i < len; i++) {
-                    binary += String.fromCharCode(bytes[i]);
+                const chunkSize = 8192;
+                for (let i = 0; i < bytes.length; i += chunkSize) {
+                    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize) as unknown as number[]);
                 }
                 const b64 = btoa(binary);
 
