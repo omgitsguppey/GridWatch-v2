@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import { Zap, ArrowRight, Loader2, Mail, Lock, AlertCircle, WifiOff, CheckCircle2 } from 'lucide-react';
 
 interface LandingPageProps {
-  onLogin: (credential: string) => void;
   onAdminLogin: (user: { name: string; email: string; picture?: string }) => void;
 }
 
