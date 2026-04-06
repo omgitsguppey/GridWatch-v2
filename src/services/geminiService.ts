@@ -33,11 +33,13 @@ export const findWarmingCenters = async (lat: number, lng: number): Promise<{ ce
   });
 
   const text = response.text || "[]";
-  let centers: WarmingCenter[] = [];
   try {
-    centers = JSON.parse(text);
-  } catch (e) { console.error(e); }
-  return { centers, chunks: [] };
+    const centers: WarmingCenter[] = JSON.parse(text);
+    return { centers, chunks: [] };
+  } catch (e) {
+    console.error("Failed to parse warming centers JSON:", text, e);
+    throw new Error("Invalid response format from Gemini: could not parse warming centers.");
+  }
 };
 
 export const findOutageClusters = async (lat: number, lng: number): Promise<{ text: string; chunks: GroundingChunk[] }> => {
