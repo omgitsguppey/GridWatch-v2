@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserReport } from '../types';
-import { AlertTriangle, CheckCircle, ThermometerSnowflake, MapPin, Activity, Loader2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ThermometerSnowflake, MapPin, Loader2 } from 'lucide-react';
 
 interface StatusFeedProps {
     userLocation: { lat: number, lng: number } | null;
