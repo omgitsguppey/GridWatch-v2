@@ -87,6 +87,10 @@ app.get('/api/reports', (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`GridWatch Backend Service running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`GridWatch Backend Service running on port ${PORT}`);
+    });
+}
+
+module.exports = { app, CLIENT_ID };
