@@ -58,14 +58,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAdminLogin }) => {
       throw new Error("Connection failed.");
     } catch (err: any) {
       setIsOffline(true);
-      setError("Server is busy. Continuing as a guest...");
-      
-      setTimeout(() => {
-        onAdminLogin({
-          name: email.split('@')[0] || 'User',
-          email: email,
-        });
-      }, 1500);
+      setError("Connection failed. Please check your internet connection.");
+      setLoading(false);
     }
   }, [email, password, onAdminLogin]);
 
